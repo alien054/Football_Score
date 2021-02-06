@@ -17,12 +17,12 @@ main {
 }
 
 .main-card {
-    min-height: 80vh;
+    min-height: 85vh;
     width: 65%;
     background: linear-gradient( to right bottom, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
     border-radius: 2rem;
     backdrop-filter: blur(4px);
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.50);
     z-index: 3;
     /* position: relative; */
     display: flex;
@@ -30,11 +30,27 @@ main {
 
 .sidebar {
     /* position: absolute; */
+    display: flex;
     flex: 1;
-    flex-direction: column;
     background: linear-gradient( to right bottom, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.3));
     border-radius: 2rem 0rem 0rem 2rem;
     z-index: 4;
+}
+
+.competition {
+    position: relative;
+    left: 8%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+.competition-title {
+    position: relative;
+    left: 8%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 }
 
 .feed {
@@ -42,11 +58,18 @@ main {
     z-index: 4;
 }
 
+.logo {
+    /* background-image: url(./images/competition_logo/bund.png); */
+    background-size: cover;
+    height: 85px;
+    width: 85px;
+}
 
-/* .circle {
-    position: absolute;
-    height: 20px;
-    width: 20px;
-    border-radius: 50%;
-    background-color: black;
-} */
+.title {
+    position: relative;
+    top: 20px;
+    left: 85px;
+    height: 50px;
+    width: 250px;
+    background: yellow;
+}
