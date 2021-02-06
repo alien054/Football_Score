@@ -45,14 +45,6 @@ main {
     justify-content: space-evenly;
 }
 
-.competition-title {
-    position: relative;
-    left: 8%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-}
-
 .feed {
     flex: 2;
     z-index: 4;
@@ -66,10 +58,26 @@ main {
 }
 
 .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
+    cursor: pointer;
     top: 20px;
-    left: 85px;
+    left: 90px;
     height: 50px;
-    width: 250px;
-    background: yellow;
+    width: 210px;
+    background: rgba(44, 36, 36, 0.11);
+    border-radius: 4rem;
+    font-size: 28px;
+    font-style: italic;
+    font-weight: bolder;
+    color: rgba(53, 53, 207, 0.801);
 }
+
+
+/* .title:hover {
+    transform: scale(1.04);
+    box-shadow: -1px 1px 2px 2px rgba(0, 0, 0, .2);
+    transition: all ease-in 0.4s;
+} */
