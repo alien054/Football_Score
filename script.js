@@ -1,3 +1,8 @@
+const competition_names = ['epl', 'laliga', 'ligue1', 'bundesliga', 'seria', 'ucl'];
+const apiCode = { epl: 'PL', laliga: 'PD', ligue1: 'FL1', bundesliga: 'BL1', seria: 'SA', ucl: 'CL' }
+const apiUrl = "https://api.football-data.org/v2/";
+const daysToView = 3;
+
 function makeLogoCard(competition_name) {
     const logo_card = document.createElement("div");
     logo_card.classList.add("logo");
@@ -15,14 +20,6 @@ function makeLogoCard(competition_name) {
     return logo_card;
 }
 
-const competition_names = ['epl', 'laliga', 'league1', 'bundesliga', 'seria', 'ucl'];
-const competition = document.querySelector(".competition");
-
-for (const cname of competition_names) {
-    // console.log(cname);
-    competition.appendChild(makeLogoCard(cname));
-}
-
 function changeOpacityExcept(competition_name, opacityVal) {
     for (const cname of competition_names) {
         if (cname !== competition_name) {
@@ -30,6 +27,31 @@ function changeOpacityExcept(competition_name, opacityVal) {
         }
     }
 }
+
+async function fetchScore(compID, dateFrom, dateTo) {
+    const response = await fetch(apiUrl + `competitions/${compID}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`, {
+        method: "GET",
+        headers: { "X-Auth-Token": "7363f87364d44da89e034ab7bf772943" }
+    });
+    const score = await response.json();
+    return score;
+}
+
+async function fetchTeamName(teamID) {
+    const response = await fetch(apiUrl + `/teams/${teamID}`, {
+        method: "GET",
+        headers: { "X-Auth-Token": "7363f87364d44da89e034ab7bf772943" }
+    });
+    const team = await response.json();
+    return team;
+}
+
+const competition = document.querySelector(".competition");
+for (const cname of competition_names) {
+    // console.log(cname);
+    competition.appendChild(makeLogoCard(cname));
+}
+
 const titleCards = document.querySelectorAll(".title");
 for (const titleCard of titleCards) {
     titleCard.addEventListener('mouseenter', () => {
@@ -43,7 +65,7 @@ for (const titleCard of titleCards) {
         logoCard.style.opacity = 1;
         changeOpacityExcept(titleCard.textContent.toLowerCase(), 0.1);
         logoCard.style.transition = "all ease 0.6s";
-    })
+    });
 
     titleCard.addEventListener('mouseleave', () => {
         // console.log(titleCard.style);
@@ -57,5 +79,27 @@ for (const titleCard of titleCards) {
         logoCard.style.opacity = 0.5;
         changeOpacityExcept(titleCard.textContent.toLowerCase(), 0.5);
         logoCard.style.transition = "all ease 1.5s";
+    });
+}
+
+
+for (const titleCard of titleCards) {
+    titleCard.addEventListener('click', () => {
+        let compID = apiCode[titleCard.textContent.toLowerCase()]
+        let dateFrom = new Date(new Date().getTime() - (daysToView * 86400000)).toISOString().slice(0, 10)
+        let dateTo = new Date().toISOString().slice(0, 10)
+
+        // fetchScore(compID, dateFrom, dateTo).then(data => {
+        //     matches = data['matches']
+        //     console.log(matches)
+
+        //     for (const match of matches) {
+        //         let homeTeam = match['homeTeam']['name']
+        //         let awayTeam = match['awayTeam']['name']
+        //         let homeScore = match['score']['fullTime']['homeTeam']
+        //         let awayScore = match['score']['fullTime']['awayTeam']
+        //         console.log(homeTeam + " " + homeScore + " VS " + awayScore + " " + awayTeam)
+        //     }
+        // })
     })
 }
