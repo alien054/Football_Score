@@ -20,30 +20,27 @@ def getData(compID):
     return response
 
 
-csv_file = open('teamData' +
-                current_time+'.csv', 'w', newline='', encoding="utf-8")
-fieldnames = ["id", "fullName", "shortName", "TLA"]
-writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-writer.writeheader()
-
+dataList = []
 for compID in apiCode:
     print(compID)
     data = getData(compID)
     teams = data['teams']
-    team_data = {'id': "", 'fullName': "", 'shortName': "", 'TLA': ""}
 
     for team in teams:
+        team_data = {'id': "", 'fullName': "", 'shortName': "", 'TLA': ""}
         team_data['id'] = team['id']
         team_data['fullName'] = team['name']
         team_data['shortName'] = team['shortName']
         team_data['TLA'] = team['tla']
 
-        writer.writerow(team_data)
+        # print(team_data)
+        dataList.append(team_data)
 
-#     time.sleep(6.1)
+    time.sleep(6.1)
 
-# data = getData('CL')
-# teams = data['teams']
+# print(dataList)
+# dataJSON = json.dumps(dataList)
+# print(dataJSON)
 
-# for team in teams:
-#     print(team['id'], team['name'], team['shortName'], team['tla'])
+with open('data.json', 'w', encoding='utf-8') as json_file:
+    json.dump(dataList, json_file)
