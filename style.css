@@ -120,9 +120,10 @@ p {
 
 .text {
     font-size: 28px;
-    font-style: italic;
-    font-weight: bolder;
-    color: rgba(53, 53, 207, 0.801);
+    font-weight: bold;
+    color: rgb(44, 6, 61);
+    letter-spacing: .1rem;
+    font-family: 'Rubik', sans-serif;
 }
 
 .scorebar-wrap {
@@ -142,5 +143,16 @@ p {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: black;
+    color: rgba(42, 6, 49, 0.795);
+    z-index: 10;
+}
+
+.live {
+    position: absolute;
+    height: 55px;
+    width: 55px;
+    background-image: url("./images/fire.png");
+    background-size: cover;
+    transform: scale(1.7);
+    z-index: 2;
 }

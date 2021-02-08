@@ -1,7 +1,7 @@
 const competition_names = ['epl', 'laliga', 'ligue1', 'bundesliga', 'seria', 'ucl']
 const apiCode = { epl: 'PL', laliga: 'PD', ligue1: 'FL1', bundesliga: 'BL1', seria: 'SA', ucl: 'CL' }
 const apiUrl = "https://api.football-data.org/v2/"
-const daysToView = 5
+const daysToView = 7
 const scorePerPage = 5
 
 function makeLogoCard(competition_name) {
@@ -66,9 +66,12 @@ function showScoreCard(matches) {
         let awayTeamID = match['awayTeam']['id']
         let homeScore = match['score']['fullTime']['homeTeam']
         let awayScore = match['score']['fullTime']['awayTeam']
-
+        let matchStatus = match['status']
         let homeTeamTLA = null
         let awayTeamTLA = null
+
+        console.log(matchStatus)
+
         fetch("./data.json").then(response => response.json())
             .then(data => {
                 data.filter(team => {
@@ -90,6 +93,12 @@ function showScoreCard(matches) {
                 scoreWrap.classList.add("scorebar-wrap")
 
                 scoreWrap.appendChild(homeCard)
+                if (matchStatus.toUpperCase() === "LIVE" || matchStatus.toUpperCase() === "IN_PLAY" ||
+                    matchStatus.toUpperCase() === "PAUSED") {
+                    const live = document.createElement("div")
+                    live.classList.add("live")
+                    scoreWrap.appendChild(live)
+                }
                 scoreWrap.appendChild(awayCard)
 
                 feed.appendChild(scoreWrap)
@@ -106,11 +115,12 @@ function makePageButton(pageIndex) {
 }
 
 async function fetchScore(compID, dateFrom, dateTo) {
-    const response = await fetch(apiUrl + `competitions/${compID}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}&status=FINISHED`, {
+    const response = await fetch(apiUrl + `competitions/${compID}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`, {
         method: "GET",
         headers: { "X-Auth-Token": "7363f87364d44da89e034ab7bf772943" }
     })
     const score = await response.json()
+
     return score
 }
 
@@ -172,7 +182,7 @@ for (const titleCard of titleCards) {
         // currentLogoCard.style.opacity = "1"
 
         fetchScore(compID, dateFrom, dateTo).then(data => {
-            let matches = data['matches'].reverse()
+            let matchesUnfiltered = data['matches'].reverse()
             const count = data['count']
             console.log(count)
             const pageCount = Math.ceil(count / scorePerPage)
@@ -180,11 +190,20 @@ for (const titleCard of titleCards) {
             let currentPage = 0
             let pages = []
 
+            let matches = matchesUnfiltered.filter(item => {
+                let status = item['status']
+                if (status === "LIVE" || status === "FINISHED" || status === "IN_PLAY" || status === "PAUSED") return item
+            })
+
             for (let i = 0; i < pageCount; i++) {
                 let temp = []
                 for (let j = 0; j < scorePerPage; j++) {
                     let index = scorePerPage * i + j
-                    if (index < count) temp.push(matches[index])
+
+                    if (index < count) //this check is required for the residual items
+                    {
+                        temp.push(matches[index])
+                    }
                 }
                 pages.push(temp)
             }
