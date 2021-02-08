@@ -16,6 +16,10 @@ main {
     justify-content: center;
 }
 
+p {
+    padding: 0px 25px 0px 25px;
+}
+
 .main-card {
     min-height: 85vh;
     width: 65%;
@@ -44,11 +48,42 @@ main {
     justify-content: space-evenly;
 }
 
-.feed {
+.feedbox {
     flex: 2;
     display: flex;
     flex-direction: column;
+}
+
+.feed {
+    display: flex;
+    flex: 29;
+    flex-direction: column;
     justify-content: space-evenly;
+}
+
+.pagination {
+    flex: 1;
+    width: 100%;
+    /* background-color: yellow; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-button {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    cursor: pointer;
+    opacity: .7;
+    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 2px 2px 6px 2px rgb(43, 39, 39);
+    margin: 0px 10px 6px 10px;
+    transition: all ease 0.6s;
+}
+
+.page-button:hover {
+    transform: rotate(.5turn);
 }
 
 .logo {
@@ -62,6 +97,11 @@ main {
     background-size: cover;
     height: 80px;
     width: 80px;
+    transition: all ease .6s;
+}
+
+.team-logo:hover {
+    transform: scale(1.25);
 }
 
 .title {
@@ -103,35 +143,4 @@ main {
     align-items: center;
     justify-content: space-between;
     color: black;
-}
-
-p {
-    padding: 0px 25px 0px 25px;
-}
-
-.arrow {
-    /* display: inline-flex; */
-    height: 120px;
-    width: 100px;
-    border-radius: 50%;
-    transition: all ease 0.6s;
-    box-shadow: 0 6px 50px 0 rgba(0, 0, 0, 0.30);
-    opacity: 0.4;
-}
-
-.arrow:hover {
-    opacity: 1;
-    box-shadow: 0 6px 50px 0 rgba(0, 0, 0, 0.70);
-}
-
-#right {
-    position: relative;
-    top: 43%;
-    left: 94%;
-}
-
-#left {
-    position: relative;
-    top: 43%;
-    left: -21%;
 }

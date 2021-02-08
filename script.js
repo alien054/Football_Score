@@ -1,7 +1,7 @@
 const competition_names = ['epl', 'laliga', 'ligue1', 'bundesliga', 'seria', 'ucl']
 const apiCode = { epl: 'PL', laliga: 'PD', ligue1: 'FL1', bundesliga: 'BL1', seria: 'SA', ucl: 'CL' }
 const apiUrl = "https://api.football-data.org/v2/"
-const daysToView = 1
+const daysToView = 5
 const scorePerPage = 5
 
 function makeLogoCard(competition_name) {
@@ -55,6 +55,56 @@ function makeScoreCard(teamName, score, isHome) {
     return scoreCard
 }
 
+function showScoreCard(matches) {
+    const feed = document.querySelector(".feed")
+    feed.innerHTML = ""
+
+    if (matches === undefined) return
+
+    for (const match of matches) {
+        let homeTeamID = match['homeTeam']['id']
+        let awayTeamID = match['awayTeam']['id']
+        let homeScore = match['score']['fullTime']['homeTeam']
+        let awayScore = match['score']['fullTime']['awayTeam']
+
+        let homeTeamTLA = null
+        let awayTeamTLA = null
+        fetch("./data.json").then(response => response.json())
+            .then(data => {
+                data.filter(team => {
+                    if (homeTeamID == team.id) homeTeamTLA = team.TLA
+                })
+                data.filter(team => {
+                    if (awayTeamID == team.id) awayTeamTLA = team.TLA
+                })
+
+                console.log(homeTeamTLA + " " + homeScore + " VS " + awayScore + " " + awayTeamTLA)
+
+                if (homeTeamTLA == null) homeTeamTLA = 'ZZZ'
+                if (awayTeamTLA == null) awayTeamTLA = 'ZZZ'
+
+                const homeCard = makeScoreCard(homeTeamTLA, homeScore, true)
+                const awayCard = makeScoreCard(awayTeamTLA, awayScore, false)
+
+                const scoreWrap = document.createElement("div")
+                scoreWrap.classList.add("scorebar-wrap")
+
+                scoreWrap.appendChild(homeCard)
+                scoreWrap.appendChild(awayCard)
+
+                feed.appendChild(scoreWrap)
+            })
+    }
+}
+
+function makePageButton(pageIndex) {
+    const pageButton = document.createElement("div")
+    pageButton.classList.add("page-button")
+    pageButton.setAttribute("value", pageIndex)
+
+    return pageButton
+}
+
 async function fetchScore(compID, dateFrom, dateTo) {
     const response = await fetch(apiUrl + `competitions/${compID}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}&status=FINISHED`, {
         method: "GET",
@@ -89,7 +139,7 @@ for (const titleCard of titleCards) {
 
         const logoCard = document.querySelector(`#${titleCard.textContent}`)
         logoCard.style.transform = "translateX(1em)"
-        logoCard.style.opacity = 1
+        logoCard.style.opacity = "1"
         changeOpacityExcept(titleCard.textContent.toLowerCase(), 0.1)
         logoCard.style.transition = "all ease 0.6s"
     })
@@ -103,69 +153,68 @@ for (const titleCard of titleCards) {
 
         const logoCard = document.querySelector(`#${titleCard.textContent}`)
         logoCard.style.transform = "scale(1)"
-        logoCard.style.opacity = 0.5
+        logoCard.style.opacity = "0.5"
         changeOpacityExcept(titleCard.textContent.toLowerCase(), 0.5)
         logoCard.style.transition = "all ease 1.5s"
     })
-}
 
-for (const titleCard of titleCards) {
     titleCard.addEventListener('click', () => {
         let compID = apiCode[titleCard.textContent.toLowerCase()]
         let dateFrom = new Date(new Date().getTime() - (daysToView * 86400000)).toISOString().slice(0, 10)
         let dateTo = new Date().toISOString().slice(0, 10)
 
+        // const logoCards = document.querySelectorAll(".logo")
+        // for (logoCard of logoCards) {
+        //     logoCard.style.opacity = "0.5"
+        // }
+
+        // const currentLogoCard = document.querySelector(`#${titleCard.textContent}`)
+        // currentLogoCard.style.opacity = "1"
+
         fetchScore(compID, dateFrom, dateTo).then(data => {
-            const matches = data['matches']
+            let matches = data['matches'].reverse()
             const count = data['count']
             console.log(count)
-            const pageCount = Math.ceil(count / 5)
+            const pageCount = Math.ceil(count / scorePerPage)
+            console.log(pageCount)
             let currentPage = 0
             let pages = []
 
             for (let i = 0; i < pageCount; i++) {
                 let temp = []
                 for (let j = 0; j < scorePerPage; j++) {
-                    temp.push(matches[scorePerPage * i + j])
+                    let index = scorePerPage * i + j
+                    if (index < count) temp.push(matches[index])
                 }
                 pages.push(temp)
             }
 
-            const feed = document.querySelector(".feed")
-            feed.innerHTML = ""
-            for (const match of pages[currentPage]) {
-                let homeTeamID = match['homeTeam']['id']
-                let awayTeamID = match['awayTeam']['id']
-                let homeScore = match['score']['fullTime']['homeTeam']
-                let awayScore = match['score']['fullTime']['awayTeam']
+            showScoreCard(pages[currentPage])
 
-                let homeTeamTLA = null
-                let awayTeamTLA = null
-                fetch("./data.json").then(response => response.json())
-                    .then(data => {
-                        data.filter(team => {
-                            if (homeTeamID == team.id) homeTeamTLA = team.TLA
-                        })
-                        data.filter(team => {
-                            if (awayTeamID == team.id) awayTeamTLA = team.TLA
-                        })
+            const pagination = document.querySelector(".pagination")
+            pagination.innerHTML = ""
+            for (let i = 0; i < pageCount; i++) {
+                const button = makePageButton(i)
 
-                        console.log(homeTeamTLA + " " + homeScore + " VS " + awayScore + " " + awayTeamTLA)
+                button.addEventListener('click', () => {
+                    let index = parseInt(button.getAttribute("value"))
 
-                        if (homeTeamTLA == null) homeTeamTLA = 'ZZZ'
-                        if (awayTeamTLA == null) awayTeamTLA = 'ZZZ'
+                    if (currentPage !== index) {
+                        showScoreCard(pages[index])
+                        currentPage = index
+                    }
 
-                        const homeCard = makeScoreCard(homeTeamTLA, homeScore, true)
-                        const awayCard = makeScoreCard(awayTeamTLA, awayScore, false)
+                    buttons = document.querySelectorAll(".page-button")
+                    for (b of buttons) {
+                        b.style.backgroundColor = "rgba(255, 255, 255, 0.2)"
+                    }
 
-                        const scoreWrap = document.createElement("div")
-                        scoreWrap.classList.add("scorebar-wrap")
+                    button.style.backgroundColor = "rgba(10, 20, 10, 0.4)"
+                        // button.style.opacity = "1"
 
-                        scoreWrap.appendChild(homeCard)
-                        scoreWrap.appendChild(awayCard)
+                })
 
-                        feed.appendChild(scoreWrap)
-                    })
+                pagination.appendChild(button)
             }
         })
     })
