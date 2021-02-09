@@ -124,6 +124,8 @@ p {
     color: rgb(44, 6, 61);
     letter-spacing: .1rem;
     font-family: 'Rubik', sans-serif;
+    cursor: default;
+    text-transform: capitalize;
 }
 
 .scorebar-wrap {
@@ -145,9 +147,18 @@ p {
     justify-content: space-between;
     color: rgba(42, 6, 49, 0.795);
     z-index: 10;
+    transition: all ease 0.6s;
+}
+
+.scorebar:hover {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.45), 0 5px 25px 1px rgba(0, 0, 0, 0.65);
+    opacity: 1;
 }
 
 .live {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
     position: absolute;
     height: 55px;
     width: 55px;
@@ -155,4 +166,11 @@ p {
     background-size: cover;
     transform: scale(1.7);
     z-index: 2;
+}
+
+.timing {
+    font-size: 11px;
+    letter-spacing: 0;
+    padding: 18px 0px 10px 0px;
+    opacity: 0.8;
 }

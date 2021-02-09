@@ -23,7 +23,7 @@ function makeLogoCard(competition_name) {
 
 function changeOpacityExcept(competition_name, opacityVal) {
     for (const cname of competition_names) {
-        if (cname !== competition_name) {
+        if (cname.toUpperCase() !== competition_name) {
             document.querySelector(`#${cname}`).style.opacity = opacityVal
         }
     }
@@ -96,7 +96,7 @@ function showScoreCard(matches) {
                 if (matchStatus.toUpperCase() === "LIVE" || matchStatus.toUpperCase() === "IN_PLAY" ||
                     matchStatus.toUpperCase() === "PAUSED") {
                     const live = document.createElement("div")
-                    live.classList.add("live")
+                    live.classList.add("live", "text")
                     scoreWrap.appendChild(live)
                 }
                 scoreWrap.appendChild(awayCard)
@@ -140,6 +140,8 @@ for (const cname of competition_names) {
 }
 
 const titleCards = document.querySelectorAll(".title")
+let curClickedLogo = ""
+
 for (const titleCard of titleCards) {
     titleCard.addEventListener('mouseenter', () => {
         // console.log(titleCard.style) 
@@ -150,7 +152,7 @@ for (const titleCard of titleCards) {
         const logoCard = document.querySelector(`#${titleCard.textContent}`)
         logoCard.style.transform = "translateX(1em)"
         logoCard.style.opacity = "1"
-        changeOpacityExcept(titleCard.textContent.toLowerCase(), 0.1)
+        changeOpacityExcept(titleCard.textContent, 0.1)
         logoCard.style.transition = "all ease 0.6s"
     })
 
@@ -163,8 +165,8 @@ for (const titleCard of titleCards) {
 
         const logoCard = document.querySelector(`#${titleCard.textContent}`)
         logoCard.style.transform = "scale(1)"
-        logoCard.style.opacity = "0.5"
-        changeOpacityExcept(titleCard.textContent.toLowerCase(), 0.5)
+        if (curClickedLogo !== "") document.querySelector(`#${curClickedLogo}`).style.opacity = "1"
+        changeOpacityExcept(curClickedLogo, 0.5)
         logoCard.style.transition = "all ease 1.5s"
     })
 
@@ -173,27 +175,22 @@ for (const titleCard of titleCards) {
         let dateFrom = new Date(new Date().getTime() - (daysToView * 86400000)).toISOString().slice(0, 10)
         let dateTo = new Date().toISOString().slice(0, 10)
 
-        // const logoCards = document.querySelectorAll(".logo")
-        // for (logoCard of logoCards) {
-        //     logoCard.style.opacity = "0.5"
-        // }
-
-        // const currentLogoCard = document.querySelector(`#${titleCard.textContent}`)
-        // currentLogoCard.style.opacity = "1"
+        curClickedLogo = titleCard.textContent
 
         fetchScore(compID, dateFrom, dateTo).then(data => {
             let matchesUnfiltered = data['matches'].reverse()
-            const count = data['count']
-            console.log(count)
-            const pageCount = Math.ceil(count / scorePerPage)
-            console.log(pageCount)
-            let currentPage = 0
-            let pages = []
 
             let matches = matchesUnfiltered.filter(item => {
                 let status = item['status']
                 if (status === "LIVE" || status === "FINISHED" || status === "IN_PLAY" || status === "PAUSED") return item
             })
+
+            const count = matches.length
+            console.log(count)
+            const pageCount = Math.ceil(count / scorePerPage)
+            console.log(pageCount)
+            let currentPage = 0
+            let pages = []
 
             for (let i = 0; i < pageCount; i++) {
                 let temp = []
@@ -215,6 +212,7 @@ for (const titleCard of titleCards) {
             for (let i = 0; i < pageCount; i++) {
                 const button = makePageButton(i)
 
+                if (i === 0) button.style.backgroundColor = "rgba(10, 20, 10, 0.4)"
                 button.addEventListener('click', () => {
                     let index = parseInt(button.getAttribute("value"))
 
@@ -229,7 +227,6 @@ for (const titleCard of titleCards) {
                     }
 
                     button.style.backgroundColor = "rgba(10, 20, 10, 0.4)"
-                        // button.style.opacity = "1"
 
                 })
 
