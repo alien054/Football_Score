@@ -1,6 +1,6 @@
 const competition_names = ['epl', 'laliga', 'ligue1', 'bundesliga', 'seria', 'ucl']
 const apiCode = { epl: 'PL', laliga: 'PD', ligue1: 'FL1', bundesliga: 'BL1', seria: 'SA', ucl: 'CL' }
-const apiUrl = "https://api.football-data.org/v2/"
+const apiUrl = "https://api.football-data.org/v4/"
 const daysToView = 7
 const scorePerPage = 5
 
@@ -29,7 +29,7 @@ function changeOpacityExcept(competition_name, opacityVal) {
     }
 }
 
-function makeScoreCard(teamName, score, isHome) {
+function makeScoreCard(teamName, score, isHome, crest) {
     const scoreCard = document.createElement("div")
     const p1 = document.createElement("p")
     const p2 = document.createElement("p")
@@ -46,7 +46,7 @@ function makeScoreCard(teamName, score, isHome) {
         p2.textContent = teamName
     }
 
-    teamLogo.style.backgroundImage = `url(./images/team_logo/${teamName}.png)`
+    teamLogo.style.backgroundImage = `url(${crest})`
 
     scoreCard.appendChild(p1)
     scoreCard.appendChild(teamLogo)
@@ -64,45 +64,53 @@ function showScoreCard(matches) {
     for (const match of matches) {
         let homeTeamID = match['homeTeam']['id']
         let awayTeamID = match['awayTeam']['id']
-        let homeScore = match['score']['fullTime']['homeTeam']
-        let awayScore = match['score']['fullTime']['awayTeam']
+
+        let homeScore = match['score']['fullTime']['home']
+        let awayScore = match['score']['fullTime']['away']
+
+        let homeCrest = match['homeTeam']['crest']
+        let awayCrest = match['awayTeam']['crest']
+        
+        let homeTeamTLA = match['homeTeam']['tla'] 
+        let awayTeamTLA = match['awayTeam']['tla']
+
         let matchStatus = match['status']
-        let homeTeamTLA = null
-        let awayTeamTLA = null
+
 
         console.log(matchStatus)
+        
+        console.log(homeTeamTLA + " " + homeScore + " VS " + awayScore + " " + awayTeamTLA)
 
-        fetch("./data.json").then(response => response.json())
-            .then(data => {
-                data.filter(team => {
-                    if (homeTeamID == team.id) homeTeamTLA = team.TLA
-                })
-                data.filter(team => {
-                    if (awayTeamID == team.id) awayTeamTLA = team.TLA
-                })
+        if (homeTeamTLA == null) homeTeamTLA = 'ZZZ'
+        if (awayTeamTLA == null) awayTeamTLA = 'ZZZ'
 
-                console.log(homeTeamTLA + " " + homeScore + " VS " + awayScore + " " + awayTeamTLA)
+        const homeCard = makeScoreCard(homeTeamTLA, homeScore, true, homeCrest)
+        const awayCard = makeScoreCard(awayTeamTLA, awayScore, false, awayCrest)
 
-                if (homeTeamTLA == null) homeTeamTLA = 'ZZZ'
-                if (awayTeamTLA == null) awayTeamTLA = 'ZZZ'
+        const scoreWrap = document.createElement("div")
+        scoreWrap.classList.add("scorebar-wrap")
 
-                const homeCard = makeScoreCard(homeTeamTLA, homeScore, true)
-                const awayCard = makeScoreCard(awayTeamTLA, awayScore, false)
+        scoreWrap.appendChild(homeCard)
+        if (matchStatus.toUpperCase() === "LIVE" || matchStatus.toUpperCase() === "IN_PLAY" ||
+            matchStatus.toUpperCase() === "PAUSED") {
+            const live = document.createElement("div")
+            live.classList.add("live", "text")
+            scoreWrap.appendChild(live)
+        }
+        scoreWrap.appendChild(awayCard)
 
-                const scoreWrap = document.createElement("div")
-                scoreWrap.classList.add("scorebar-wrap")
+        feed.appendChild(scoreWrap)
 
-                scoreWrap.appendChild(homeCard)
-                if (matchStatus.toUpperCase() === "LIVE" || matchStatus.toUpperCase() === "IN_PLAY" ||
-                    matchStatus.toUpperCase() === "PAUSED") {
-                    const live = document.createElement("div")
-                    live.classList.add("live", "text")
-                    scoreWrap.appendChild(live)
-                }
-                scoreWrap.appendChild(awayCard)
+        // fetch("./data.json").then(response => response.json())
+        //     .then(data => {
+        //         data.filter(team => {
+        //             if (homeTeamID == team.id) homeTeamTLA = team.TLA
+        //         })
+        //         data.filter(team => {
+        //             if (awayTeamID == team.id) awayTeamTLA = team.TLA
+        //         })
 
-                feed.appendChild(scoreWrap)
-            })
+        //     })
     }
 }
 
@@ -117,7 +125,7 @@ function makePageButton(pageIndex) {
 async function fetchScore(compID, dateFrom, dateTo) {
     const response = await fetch(apiUrl + `competitions/${compID}/matches?dateFrom=${dateFrom}&dateTo=${dateTo}`, {
         method: "GET",
-        headers: { "X-Auth-Token": "7363f87364d44da89e034ab7bf772943" }
+        headers: { "X-Auth-Token": "c8ae1071f9d04297b20b619cf86700bd" },
     })
     const score = await response.json()
 
@@ -127,7 +135,7 @@ async function fetchScore(compID, dateFrom, dateTo) {
 async function fetchTeamName(teamID) {
     const response = await fetch(apiUrl + `/teams/${teamID}`, {
         method: "GET",
-        headers: { "X-Auth-Token": "7363f87364d44da89e034ab7bf772943" }
+        headers: { "X-Auth-Token": "c8ae1071f9d04297b20b619cf86700bd" }
     })
     const team = await response.json()
     return team

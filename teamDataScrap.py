@@ -9,13 +9,13 @@ current_time = now.strftime("%H_%M_%S")
 
 teamID = 18
 connection = http.client.HTTPConnection('api.football-data.org')
-headers = {'X-Auth-Token': '7363f87364d44da89e034ab7bf772943'}
+headers = {'X-Auth-Token': 'c8ae1071f9d04297b20b619cf86700bd'}
 apiCode = ['PL', 'PD', 'FL1', 'BL1', 'SA', 'CL']
 
 
 def getData(compID):
     connection.request(
-        'GET', '/v2/competitions/{}/teams'.format(compID), None, headers)
+        'GET', '/v4/competitions/{}/teams'.format(compID), None, headers)
     response = json.loads(connection.getresponse().read().decode())
     return response
 
